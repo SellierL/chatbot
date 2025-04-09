@@ -1,0 +1,175 @@
+/* Styles pour ressembler à ChatGPT */
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  display: flex;
+  height: 100vh;
+  overflow: hidden;
+  background-color: #f9f9f9; /* Couleur de fond douce */
+}
+
+.container {
+  display: flex;
+  width: 100%;
+}
+
+.sidebar {
+  width: 300px;
+  background-color: #f7f7f8;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #ddd;
+}
+
+.sidebar-header {
+  padding: 10px;
+  border-bottom: 1px solid #ddd;
+}
+
+.new-conversation {
+  width: 100%;
+  padding: 10px;
+  background-color: #6c8ebf; /* Bleu doux */
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.conversation-list {
+  flex-grow: 1;
+  overflow-y: auto;
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.sidebar-footer {
+  padding: 10px;
+  border-top: 1px solid #ddd;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.sidebar-footer button {
+  /* Styles pour les boutons restants */
+  padding: 10px;
+  background-color: #6c8ebf; /* Bleu doux */
+  color: white;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+.chat-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.chat-header {
+  padding: 10px;
+  background-color: #6c8ebf; /* Bleu doux */
+  color: white;
+  text-align: center;
+  font-size: 18px;
+  position: relative;
+}
+
+.conversation-title {
+  cursor: pointer;
+  text-decoration: underline;
+}
+
+.chat-box {
+  flex-grow: 1;
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.message {
+  max-width: 70%;
+  padding: 10px;
+  border-radius: 10px;
+  word-wrap: break-word;
+}
+
+.message.user {
+  align-self: flex-end;
+  background-color: #6c8ebf; /* Bleu doux */
+  color: white;
+}
+
+.message.bot {
+  align-self: flex-start;
+  background-color: #f1f1f1;
+  color: black;
+}
+
+.input-container {
+  display: flex;
+  padding: 10px;
+  border-top: 1px solid #ddd;
+}
+
+.input-container input {
+  flex-grow: 1;
+  padding: 10px;
+  border: 1px solid #ddd;
+  border-radius: 5px;
+}
+
+.input-container button {
+  background-color: #6c8ebf; /* Bleu doux */
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  cursor: pointer;
+  border-radius: 5px;
+}
+
+#stop-button {
+  background-color: #ff6b6b; /* Rouge doux pour le bouton Stop */
+}
+
+#stop-button:disabled {
+  background-color: #ccc; /* Grisé lorsqu'il est désactivé */
+  cursor: not-allowed;
+}
+
+body.dark-mode {
+  background-color: #121212;
+  color: #ffffff;
+}
+
+body.dark-mode .sidebar {
+  background-color: #1e1e1e;
+}
+
+body.dark-mode .chat-header {
+  background-color: #333;
+}
+
+body.dark-mode .message.bot {
+  background-color: #333;
+  color: #ffffff;
+}
+
+.loading {
+  text-align: center;
+  font-style: italic;
+  color: gray;
+  display: none; /* Par défaut, caché */
+}
+
+.loading.hidden {
+  display: none; /* Assurez-vous que la classe "hidden" cache l'élément */
+}
+
+.loading:not(.hidden) {
+  display: block; /* Affiché uniquement si la classe "hidden" est absente */
+}

@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <title>Chatbot IA - llama3.2</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div class="container">
+    <div class="sidebar" id="sidebar">
+      <div class="sidebar-header">
+        <h2>Chatbot IA</h2>
+        <button class="new-conversation" onclick="startNewConversation()">+ Nouvelle conversation</button>
+      </div>
+      <ul id="history" class="conversation-list">
+        <!-- Historique des conversations -->
+      </ul>
+      <div class="sidebar-footer">
+        <button id="theme-toggle" onclick="toggleTheme()">Mode sombre</button>
+      </div>
+    </div>
+    <div class="chat-area">
+      <div class="chat-header">
+        <div class="conversation-title" onclick="editConversationTitle()" id="conversation-title">
+          Nouvelle conversation
+        </div>
+      </div>
+      <div id="chat-box" class="chat-box"></div>
+      <div id="loading" class="loading hidden">L'IA réfléchit...</div>
+      <div class="input-container">
+        <input type="text" id="user-input" placeholder="Écris un message..." onkeydown="handleKeyPress(event)" />
+        <button onclick="sendMessage()">Envoyer</button>
+        <button onclick="stopResponse()" id="stop-button" disabled>Stop</button>
+      </div>
+    </div>
+  </div>
+  <script>
+    let conversations = [];
+    let conversationTitle = "Nouvelle conversation";
+    let abortController = null;
+
+    document.addEventListener("DOMContentLoaded", async () => {
+      hideLoading();
+      await loadConversationsFromServer();
+      updateConversationTitle();
+    });
+
+    async function loadConversationsFromServer() {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/loadConversations');
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
+        conversations = await res.json();
+        updateHistory();
+      } catch (err) {
+        console.error("Erreur lors du chargement des conversations :", err);
+      }
+    }
+
+    async function saveConversationsToServer() {
+      try {
+        const res = await fetch('http://127.0.0.1:5000/api/saveConversations', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(conversations)
+        });
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
+      } catch (err) {
+        console.error("Erreur lors de la sauvegarde des conversations :", err);
+      }
+    }
+
+    function startNewConversation() {
+      conversations.unshift({ title: "Nouvelle conversation", messages: [] });
+      updateHistory();
+      updateConversationTitle();
+      document.getElementById("chat-box").innerHTML = "";
+    }
+
+    function toggleTheme() {
+      const body = document.body;
+      const themeToggle = document.getElementById("theme-toggle");
+      body.classList.toggle("dark-mode");
+      themeToggle.textContent = body.classList.contains("dark-mode") ? "Mode clair" : "Mode sombre";
+    }
+
+    async function sendMessage() {
+      const input = document.getElementById("user-input");
+      const message = input.value.trim();
+      if (!message) return;
+
+      addMessage("user", message);
+      input.value = "";
+
+      try {
+        showLoading();
+        document.getElementById("stop-button").disabled = false; // Activer le bouton Stop
+        abortController = new AbortController();
+
+        const res = await fetch("http://127.0.0.1:5000/chat", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ message }),
+          signal: abortController.signal
+        });
+
+        if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
+        const data = await res.json();
+        addMessage("bot", data.response || "[Erreur : pas de réponse]");
+      } catch (err) {
+        if (err.name === "AbortError") {
+          addMessage("bot", "[Réponse interrompue]");
+        } else {
+          console.error("Erreur lors de l'envoi du message :", err);
+          addMessage("bot", "[Erreur de connexion]");
+        }
+      } finally {
+        hideLoading();
+        document.getElementById("stop-button").disabled = true; // Désactiver le bouton Stop
+        abortController = null;
+      }
+    }
+
+    function stopResponse() {
+      if (abortController) {
+        abortController.abort();
+        document.getElementById("stop-button").disabled = true; // Désactiver le bouton Stop
+      }
+    }
+
+    function addMessage(sender, text) {
+      const chatBox = document.getElementById("chat-box");
+      const messageDiv = document.createElement("div");
+      messageDiv.className = `message ${sender}`;
+      const textDiv = document.createElement("div");
+      textDiv.textContent = text;
+      messageDiv.appendChild(textDiv);
+      chatBox.appendChild(messageDiv);
+      chatBox.scrollTop = chatBox.scrollHeight;
+    }
+
+    function handleKeyPress(event) {
+      if (event.key === "Enter") {
+        sendMessage();
+      }
+    }
+
+    function showLoading() {
+      const loadingElement = document.getElementById("loading");
+      if (loadingElement) {
+        loadingElement.classList.remove("hidden");
+      }
+    }
+
+    function hideLoading() {
+      const loadingElement = document.getElementById("loading");
+      if (loadingElement) {
+        loadingElement.classList.add("hidden");
+      }
+    }
+
+    function clearHistory() {
+      const history = document.getElementById("history");
+      history.innerHTML = "";
+      conversations = [];
+      saveConversationsToServer();
+    }
+
+    function saveConversation(userMessage, botResponse) {
+      if (!conversations.length) {
+        conversations.push({ title: conversationTitle, messages: [] });
+        updateHistory();
+      }
+      conversations[0].messages.push({ user: userMessage, bot: botResponse });
+      updateConversationTitle();
+      saveConversationsToServer();
+    }
+
+    function updateHistory() {
+      const history = document.getElementById("history");
+      history.innerHTML = "";
+      conversations.forEach((conv, index) => {
+        const li = document.createElement("li");
+        li.textContent = conv.title;
+        li.onclick = () => loadConversation(index);
+        history.appendChild(li);
+      });
+    }
+
+    function loadConversation(index) {
+      const chatBox = document.getElementById("chat-box");
+      chatBox.innerHTML = "";
+      const conversation = conversations[index];
+      conversation.messages.forEach(msg => {
+        addMessage("user", msg.user);
+        addMessage("bot", msg.bot);
+      });
+      updateConversationTitle();
+    }
+
+    function updateConversationTitle() {
+      const titleElement = document.getElementById("conversation-title");
+      if (conversations.length) {
+        titleElement.textContent = conversations[0].title;
+      } else {
+        titleElement.textContent = "Nouvelle conversation";
+      }
+    }
+
+    function editConversationTitle() {
+      if (!conversations.length) return;
+      const newTitle = prompt("Modifier le titre de la conversation :", conversations[0].title);
+      if (newTitle) {
+        conversations[0].title = newTitle;
+        updateConversationTitle();
+        saveConversationsToServer();
+      }
+    }
+  </script>
+</body>
+</html>

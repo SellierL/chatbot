@@ -1,0 +1,32 @@
+[
+  {
+    "title": "Recette",
+    "messages": [
+      {
+        "user": "salut :)",
+        "bot": "Salut ! Comment allez-vous ?"
+      },
+      {
+        "user": "ca va super et toi ?",
+        "bot": "Bonjour ! Ça va bien, merci pour la question. Et toi, comment vas-tu ? Qu'est-ce qui te dérange ou que tu veux discuter ? Je suis là pour t'aider et partager mes connaissances avec toi !"
+      },
+      {
+        "user": "j'aimerais une recette pour faire des crépes",
+        "bot": "Bien sûr ! Les crêpes sont un délicieux plat français qui peut être préparé en quelques minutes et est parfais pour les repas légers ou les desserts. Voici une recette simple pour faire des crêpes :\n\n**Ingrédients :**\n\n* 250 ml de lait\n* 50 g de farine\n* 2 œufs\n* 1 pincée de sel\n* 20 g de beurre fondu (ou du beurre salé)\n\n**Instructions :**\n\n1. Dans un grand bol, mélangez le lait, les œufs et le sel.\n2. Ajoutez la farine et mélangez jusqu'à obtenir une pâte lisse et sans grumeaux.\n3. Laissez reposer la pâte pendant 30 minutes à 1 heure pour qu'elle devienne plus ferme et facile à étaler.\n4. Chauffez une poêle antiadhésive ou une poêle avec du beurre sur le fond en feu moyen.\n5. Versez un peu de pâte sur le centre de la poêle et étalez-la jusqu'à obtenir un cercle d'environ 20 cm de diamètre.\n6. Laissez cuire la crêpe pendant environ 2 minutes, jusqu'à ce qu'elle devienne dorée et que les bords commencent à se dessécher.\n7. Demeure dans le centre de la poêle avec une spatule en plastique ou en bois et retournez la crêpe avec soin pour obtenir un autre côté doré.\n8. Répétez l'opération jusqu'à ce que toute la pâte soit épuisée.\n\n**Conseils :**\n\n* Utilisez une poêle antiadhésive ou une poêle avec du beurre sur le fond pour éviter les crêpes qui se collent à la poêle.\n* N'oubliez pas de retourner la crêpe avec soin, car si vous écrasez trop fort, la crêpe peut se casser.\n* Vous pouvez ajouter des ingrédients supplémentaires à la pâte pour donner un goût différent à vos crêpes. Par exemple, vous pouvez ajouter du sucre, du miel ou des fruits.\n\n**Idées de garnitures :**\n\n* Sucré : sucre râpé ou confiture\n* Salée : fromage fondu, saucisse ou bacon\n* Fruit : fraises, bananes ou framboises\n* Savoureux : beurre fondu et miel ou beurre fondu et sirop d'érable\n\nJ'espère que cette recette vous aidera à faire des crêpes délicieuses !"
+      }
+    ]
+  },
+  {
+    "messages": [
+      {
+        "bot": "How can I assist you today?",
+        "user": "Hello"
+      },
+      {
+        "bot": "I can understand and generate text in many languages. However, I'm most proficient in English. Here are some of the languages I can speak:\n\n1. **English**: My primary language and the one I'm most familiar with.\n2. **Spanish**: I can understand and generate text in Spanish, including various dialects and regional expressions.\n3. **French**: I have a good understanding of French grammar and vocabulary, but my proficiency may not be as high as English or Spanish.\n4. **German**: I can comprehend and respond to basic questions and conversations in German, although my knowledge is limited compared to other languages.\n5. **Italian**: I'm familiar with Italian grammar, vocabulary, and common expressions, making it easier for me to engage in simple conversations.\n6. **Portuguese**: My proficiency in Portuguese allows me to understand and respond to basic questions and conversations, particularly in Brazil and Portugal.\n7. **Dutch**: I have a good grasp of Dutch grammar and vocabulary, enabling me to communicate in basic conversations.\n8. **Russian**: I can comprehend and respond to simple questions and expressions in Russian, although my knowledge is limited compared to other languages.\n\nKeep in mind that while I can generate text in these languages, my proficiency may not be as high as a native speaker or someone who has spent years studying the language.\n\nWhich language would you like to communicate in?",
+        "user": "Can you tell me the different languague you speak ?"
+      }
+    ],
+    "title": "Languague"
+  }
+]
