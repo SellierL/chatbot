@@ -4,6 +4,25 @@
   <meta charset="UTF-8">
   <title>Chatbot IA - llama3.2</title>
   <link rel="stylesheet" href="style.css">
+  <style>
+    .conversation-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .delete-button {
+      display: none;
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: red;
+    }
+
+    .conversation-item:hover .delete-button {
+      display: inline;
+    }
+  </style>
 </head>
 <body>
   <div class="container">
@@ -180,10 +199,33 @@
       history.innerHTML = "";
       conversations.forEach((conv, index) => {
         const li = document.createElement("li");
-        li.textContent = conv.title;
-        li.onclick = () => loadConversation(index);
+        li.className = "conversation-item";
+
+        const titleSpan = document.createElement("span");
+        titleSpan.textContent = conv.title;
+        titleSpan.onclick = () => loadConversation(index);
+
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "🗑️";
+        deleteButton.onclick = (e) => {
+          e.stopPropagation();
+          deleteConversation(index);
+        };
+
+        li.appendChild(titleSpan);
+        li.appendChild(deleteButton);
         history.appendChild(li);
       });
+    }
+
+    function deleteConversation(index) {
+      if (confirm("Êtes-vous sûr de vouloir supprimer cette conversation ?")) {
+        conversations.splice(index, 1);
+        updateHistory();
+        updateConversationTitle();
+        saveConversationsToServer();
+      }
     }
 
     function loadConversation(index) {

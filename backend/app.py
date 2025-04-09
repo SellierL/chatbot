@@ -94,5 +94,31 @@ def add_message():
     except Exception as e:
         return jsonify({"error": f"Erreur lors de l'ajout du message : {str(e)}"}), 500
 
+# Endpoint pour supprimer une conversation
+@app.route("/api/deleteConversation", methods=["POST"])
+def delete_conversation():
+    data = request.get_json()
+    index = data.get("index")
+
+    if index is None or not isinstance(index, int):
+        return jsonify({"error": "Index invalide"}), 400
+
+    try:
+        if os.path.exists(CONVERSATIONS_FILE):
+            with open(CONVERSATIONS_FILE, "r", encoding="utf-8") as file:
+                conversations = json.load(file)
+        else:
+            conversations = []
+
+        if 0 <= index < len(conversations):
+            del conversations[index]
+            with open(CONVERSATIONS_FILE, "w", encoding="utf-8") as file:
+                json.dump(conversations, file, ensure_ascii=False, indent=2)
+            return jsonify({"message": "Conversation supprimée avec succès"}), 200
+        else:
+            return jsonify({"error": "Index hors limites"}), 400
+    except Exception as e:
+        return jsonify({"error": f"Erreur lors de la suppression : {str(e)}"}), 500
+
 if __name__ == "__main__":
     app.run(port=5000, debug=True)
