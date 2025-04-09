@@ -22,6 +22,30 @@
     .conversation-item:hover .delete-button {
       display: inline;
     }
+
+    .message {
+      padding: 10px;
+      margin: 5px;
+      border-radius: 10px;
+      max-width: 70%;
+      word-wrap: break-word;
+    }
+
+    .message.user {
+      background-color: #d1e7dd;
+      align-self: flex-end;
+    }
+
+    .message.bot {
+      background-color: #f8d7da;
+      align-self: flex-start;
+    }
+
+    .chat-box {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
   </style>
 </head>
 <body>
@@ -112,7 +136,7 @@
 
       try {
         showLoading();
-        document.getElementById("stop-button").disabled = false; // Activer le bouton Stop
+        document.getElementById("stop-button").disabled = false;
         abortController = new AbortController();
 
         const res = await fetch("http://127.0.0.1:5000/chat", {
@@ -123,38 +147,73 @@
         });
 
         if (!res.ok) throw new Error(`Erreur HTTP : ${res.status}`);
-        const data = await res.json();
-        addMessage("bot", data.response || "[Erreur : pas de réponse]");
+
+        const reader = res.body.getReader();
+        const decoder = new TextDecoder("utf-8");
+        let botMessage = "";
+
+        // Crée une bulle de chat vide pour le bot
+        const botMessageElement = addMessage("bot", "");
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+
+          const chunk = decoder.decode(value, { stream: true });
+          console.log("Chunk reçu :", chunk); // Journal pour vérifier les données reçues
+          const lines = chunk.split("\n").filter(line => line.trim() !== "");
+
+          for (const line of lines) {
+            if (line.startsWith("data:")) {
+              let json = line.slice(5).trim();
+              try {
+                const parsed = JSON.parse(json);
+                console.log("JSON analysé :", parsed); // Journal pour vérifier le JSON analysé
+                if (parsed.response) {
+                  botMessage += parsed.response.replace(/\n/g, "<br>");
+                  botMessageElement.innerHTML = botMessage; // Met à jour la bulle de chat
+                }
+              } catch (err) {
+                console.warn("Ligne JSON ignorée en raison d'une erreur :", err, "Ligne :", json);
+                continue; // Ignore la ligne mal formée et passe à la suivante
+              }
+            }
+          }
+        }
+
+        if (botMessage) {
+          saveConversation(message, botMessage.replace(/<br>/g, "\n")); // Sauvegarde le message utilisateur et bot
+        } else {
+          console.warn("Aucune réponse valide reçue du bot.");
+          botMessageElement.innerHTML = "[Erreur : pas de réponse]";
+        }
       } catch (err) {
         if (err.name === "AbortError") {
           addMessage("bot", "[Réponse interrompue]");
         } else {
           console.error("Erreur lors de l'envoi du message :", err);
-          addMessage("bot", "[Erreur de connexion]");
         }
       } finally {
         hideLoading();
-        document.getElementById("stop-button").disabled = true; // Désactiver le bouton Stop
-        abortController = null;
+        document.getElementById("stop-button").disabled = true;
       }
     }
 
     function stopResponse() {
       if (abortController) {
         abortController.abort();
-        document.getElementById("stop-button").disabled = true; // Désactiver le bouton Stop
+        document.getElementById("stop-button").disabled = true;
       }
     }
 
-    function addMessage(sender, text) {
+    function addMessage(sender, message) {
       const chatBox = document.getElementById("chat-box");
-      const messageDiv = document.createElement("div");
-      messageDiv.className = `message ${sender}`;
-      const textDiv = document.createElement("div");
-      textDiv.textContent = text;
-      messageDiv.appendChild(textDiv);
-      chatBox.appendChild(messageDiv);
+      const messageElement = document.createElement("div");
+      messageElement.className = `message ${sender}`;
+      messageElement.innerHTML = message;
+      chatBox.appendChild(messageElement);
       chatBox.scrollTop = chatBox.scrollHeight;
+      return messageElement; // Retourne l'élément pour mise à jour en streaming
     }
 
     function handleKeyPress(event) {

@@ -28,13 +28,25 @@ def chat():
     response = requests.post(OLLAMA_URL, json={
         "model": MODEL_NAME,
         "prompt": user_message,
-        "stream": False
-    })
+        "stream": True  # Activer le streaming
+    }, stream=True)
 
     if response.status_code == 200:
-        ai_reply = response.json().get("response", "")
-        return jsonify({"response": ai_reply})
+        def generate():
+            for chunk in response.iter_lines():
+                if chunk:
+                    try:
+                        # Décoder le chunk en UTF-8
+                        decoded_chunk = chunk.decode("utf-8")
+                        # Nettoyer les données pour supprimer les préfixes et caractères inutiles
+                        cleaned_chunk = decoded_chunk.replace("b'", "").replace("b\"", "").strip("'\"")
+                        print(f"Chunk nettoyé : {cleaned_chunk}")  # Journal pour vérifier les données nettoyées
+                        yield f"data: {cleaned_chunk}\n\n"
+                    except Exception as e:
+                        print(f"Erreur lors du traitement du chunk : {e}")
+        return app.response_class(generate(), content_type="text/event-stream")
     else:
+        print(f"Erreur lors de la requête à OLLAMA_URL : {response.status_code}, {response.text}")
         return jsonify({"error": "Erreur lors de la génération"}), 500
 
 # Endpoint pour charger les conversations
@@ -57,8 +69,10 @@ def save_conversations():
     try:
         with open(CONVERSATIONS_FILE, "w", encoding="utf-8") as file:
             json.dump(data, file, ensure_ascii=False, indent=2)
+        print("Conversations sauvegardées :", data)  # Journal pour vérifier les données sauvegardées
         return jsonify({"message": "Conversations sauvegardées avec succès"}), 200
     except Exception as e:
+        print(f"Erreur lors de la sauvegarde des conversations : {e}")
         return jsonify({"error": f"Erreur lors de la sauvegarde : {str(e)}"}), 500
 
 # Endpoint pour ajouter un nouveau message
